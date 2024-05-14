@@ -11,13 +11,10 @@ SP_INDICES = ['%03d' % x for x in list(range(N_SPLITS))]
 SIZES = ['small', 'medium', 'large']
 N_WINDOWS = 83 # 変更不可能
 WINDOW_INDICES = ['%02d' % x for x in list(range(1, N_WINDOWS+1))]
-SUMR_FILES = ["Sample_NoCounts.csv", "Feature_Means.csv", "Feature_LogMeans.csv", "Feature_SqrtMeans.csv", "Feature_CPMMeans.csv", "Feature_LogCPMMeans.csv", "Feature_SqrtCPMMeans.csv", "Feature_CPTMeans.csv", "Feature_LogCPTMeans.csv", "Feature_SqrtCPTMeans.csv", "Feature_CPMEDMeans.csv", "Feature_LogCPMEDMeans.csv", "Feature_SqrtCPMEDMeans.csv", "Feature_Vars.csv", "Feature_LogVars.csv", "Feature_SqrtVars.csv", "Feature_CPMVars.csv", "Feature_LogCPMVars.csv", "Feature_SqrtCPMVars.csv", "Feature_CPTVars.csv", "Feature_LogCPTVars.csv", "Feature_SqrtCPTVars.csv", "Feature_CPMEDVars.csv", "Feature_LogCPMEDVars.csv", "Feature_SqrtCPMEDVars.csv", "Feature_CV2s.csv"]
-HEADTAIL = ['head', 'tail']
+
 rule all:
 	input:
-		expand('plot/{size}/{ht}/score.png', size=SIZES, ht=HEADTAIL),
-		expand('plot/{size}/{ht}/variance.png', size=SIZES, ht=HEADTAIL),
-		expand('plot/{size}/{ht}/umap.png', size=SIZES, ht=HEADTAIL)
+		expand('data/{size}/FINISH_split', size=SIZES)
 
 rule extract_cols:
 	input:
@@ -229,137 +226,16 @@ rule paste:
 	shell:
 		'src/paste_{wildcards.size}.sh {input} {output} >& {log}'
 
-rule downsampling:
+rule split_coo:
 	input:
 		'data/{size}/coo.txt'
 	output:
-		'data/{size}/{ht}/coo.txt'
+		'data/{size}/FINISH_split'
 	container:
 		'docker://koki/desc_investigation:20240508'
 	benchmark:
-		'benchmarks/paste_{size}_{ht}.txt'
+		'benchmarks/split_coo_{size}.txt'
 	log:
-		'logs/paste_{size}_{ht}.log'
+		'logs/split_coo_{size}.log'
 	shell:
-		'src/{wildcards.ht}.sh {input} {output} >& {log}'
-
-rule downsampling_pca:
-	input:
-		'data/{size}/{ht}/coo.txt'
-	output:
-		'data/{size}/{ht}/loading.txt',
-		'data/{size}/{ht}/eigenvalue.txt',
-		'data/{size}/{ht}/score.txt'
-	container:
-		'docker://koki/desc_investigation:20240508'
-	benchmark:
-		'benchmarks/downsampling_pca_{size}_{ht}.txt'
-	log:
-		'logs/downsampling_pca_{size}_{ht}.log'
-	shell:
-		'src/downsampling_pca.sh {input} {output} >& {log}'
-
-rule downsampling_umap:
-	input:
-		'data/{size}/{ht}/score.txt'
-	output:
-		'data/{size}/{ht}/umap.txt'
-	container:
-		'docker://koki/desc_investigation:20240508'
-	benchmark:
-		'benchmarks/downsampling_umap_{size}_{ht}.txt'
-	log:
-		'logs/downsampling_umap_{size}_{ht}.log'
-	shell:
-		'src/downsampling_umap.sh {input} {output} >& {log}'
-
-rule plot_downsampling_pca:
-	input:
-		'data/col_id_number_{size}.txt',
-		'data/{size}/{ht}/coo.txt',
-		'data/{size}/{ht}/score.txt',
-		'data/{size}/{ht}/eigenvalue.txt'
-	output:
-		'plot/{size}/{ht}/score.png',
-		'plot/{size}/{ht}/variance.png'
-	container:
-		'docker://koki/desc_investigation:20240508'
-	benchmark:
-		'benchmarks/plot_downsampling_pca_{size}_{ht}.txt'
-	log:
-		'logs/plot_downsampling_pca_{size}_{ht}.log'
-	shell:
-		'src/plot_downsampling_pca.sh {input} {output} >& {log}'
-
-rule plot_downsampling_umap:
-	input:
-		'data/col_id_number_{size}.txt',
-		'data/{size}/{ht}/coo.txt',
-		'data/{size}/{ht}/umap.txt'
-	output:
-		'plot/{size}/{ht}/umap.png'
-	container:
-		'docker://koki/desc_investigation:20240508'
-	benchmark:
-		'benchmarks/plot_downsampling_umap_{size}_{ht}.txt'
-	log:
-		'logs/plot_downsampling_umap_{size}_{ht}.log'
-	shell:
-		'src/plot_downsampling_umap.sh {input} {output} >& {log}'
-
-# rule downsampling_csc:
-# 	input:
-# 		'data/{size}/{ht}/coo.txt'
-# 	output:
-# 		'data/{size}/{ht}/coo.npz'
-# 	container:
-# 		'docker://koki/desc_investigation:20240508'
-# 	benchmark:
-# 		'benchmarks/csc_{size}_{ht}.txt'
-# 	log:
-# 		'logs/csc_{size}_{ht}.log'
-# 	shell:
-# 		'src/csc.sh {input} {output} >& {log}'
-
-# rule downsampling_hdf5:
-# 	input:
-# 		'data/{size}/{ht}/coo.npz'
-# 	output:
-# 		'data/{size}/{ht}/coo.h5'
-# 	container:
-# 		'docker://koki/desc_investigation:20240508'
-# 	benchmark:
-# 		'benchmarks/hdf5_{size}_{ht}.txt'
-# 	log:
-# 		'logs/hdf5_{size}_{ht}.log'
-# 	shell:
-# 		'src/hdf5.sh {input} {output} >& {log}'
-
-# rule downsampling_tenxsumr
-# 	input:
-# 		'data/{size}/{ht}/coo.h5'
-# 	output:
-# 		...
-# 	container:
-# 		'docker://ghcr.io/rikenbit/onlinepcajl:7bbf4de'
-# 	benchmark:
-# 		'benchmarks/tenxsumr_{size}_{ht}.txt'
-# 	log:
-# 		'logs/tenxsumr_{size}_{ht}.log'
-# 	shell:
-# 		'src/tenxsumr.sh {input} {output} >& {log}'
-
-# rule downsampling_tenxpca
-# 	input:
-# 		'data/{size}/{ht}/coo.h5'
-# 	output:
-# 		'output/{size}/Feature_Means.csv'
-	# container:
-	# 	'docker://ghcr.io/rikenbit/onlinepcajl:7bbf4de'
-# 	benchmark:
-# 		'benchmarks/tenxpca_{size}.txt'
-# 	log:
-# 		'logs/tenxpca_{size}.log'
-# 	shell:
-# 		'src/tenxpca.sh {input} {output} >& {log}'
-
+		'src/split_coo_{wildcards.size}.sh {input} {output} >& {log}'
