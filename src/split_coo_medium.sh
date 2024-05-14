@@ -10,6 +10,6 @@
 #SBATCH -p node03-06
 SLURM_RESTART_COUNT=2
 
-split -d -a 3 -l 474480718 $1 split_coo_medium_
+split -d -a 3 -l 47448071 $1 split_coo_medium_
 mv split_coo_medium_* data/medium/
 touch $2

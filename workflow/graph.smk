@@ -7,7 +7,7 @@ from snakemake.utils import min_version
 min_version("8.10.8")
 
 SIZES = ['small', 'medium', 'large']
-JOIN_INDICES = ['%03d' % x for x in list(range(11))]
+JOIN_INDICES = ['%03d' % x for x in list(range(101))]
 
 rule all:
 	input:

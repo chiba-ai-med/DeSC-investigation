@@ -8,7 +8,7 @@ outfile <- args[3]
 
 # Load
 print("Load")
-data <- read.delim(infile1, header=FALSE, nrow=1000)
+data <- read.delim(infile1, header=FALSE)
 data <- data + 1
 icd10 <- read.delim(infile2, header=FALSE, sep=" ")[,1]
 

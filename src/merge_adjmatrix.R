@@ -7,7 +7,7 @@ outfile <- args[2]
 
 # Load
 files <- paste0("data/", size, "/adj_", size, "_",
-	formatC(0:10, width=3, flag="0"))
+	formatC(0:100, width=3, flag="0"))
 
 # Merge
 adj <- Reduce("+", lapply(files, function(x){
