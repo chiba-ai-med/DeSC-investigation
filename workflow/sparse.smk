@@ -14,7 +14,8 @@ WINDOW_INDICES = ['%02d' % x for x in list(range(1, N_WINDOWS+1))]
 
 rule all:
 	input:
-		expand('data/{size}/FINISH_split', size=SIZES)
+		expand('data/{size}/FINISH_split', size=SIZES),
+		'data/mm/small/x_new_list.txt'
 
 rule extract_cols:
 	input:
@@ -23,6 +24,8 @@ rule extract_cols:
 		'data/receipt_diseases_3cols.csv'
 	container:
 		'docker://koki/desc_investigation:20240508'
+	resources:
+		mem_gb=2000
 	benchmark:
 		'benchmarks/extract_cols.txt'
 	log:
@@ -37,6 +40,8 @@ rule split:
 		'data/FINISH_split'
 	container:
 		'docker://koki/desc_investigation:20240508'
+	resources:
+		mem_gb=2000
 	benchmark:
 		'benchmarks/split.txt'
 	log:
@@ -52,6 +57,8 @@ rule join:
 		'data/join_{sp_index}.csv'
 	container:
 		'docker://koki/desc_investigation:20240508'
+	resources:
+		mem_gb=2000
 	benchmark:
 		'benchmarks/join_{sp_index}.txt'
 	log:
@@ -66,6 +73,8 @@ rule cat:
 		'data/cat.csv'
 	container:
 		'docker://koki/desc_investigation:20240508'
+	resources:
+		mem_gb=2000
 	benchmark:
 		'benchmarks/cat.txt'
 	log:
@@ -80,6 +89,8 @@ rule sqlite:
 		'data/cat.sqlite'
 	container:
 		'docker://koki/desc_investigation:20240508'
+	resources:
+		mem_gb=2000
 	benchmark:
 		'benchmarks/sqlite.txt'
 	log:
@@ -94,6 +105,8 @@ rule receipt_ym:
 		'data/receipt_ym.txt'
 	container:
 		'docker://koki/desc_investigation:20240508'
+	resources:
+		mem_gb=2000
 	benchmark:
 		'benchmarks/receipt_ym.txt'
 	log:
@@ -112,6 +125,8 @@ rule rolling:
 		window='|'.join([re.escape(x) for x in WINDOW_INDICES])
 	container:
 		'docker://koki/desc_investigation:20240508'
+	resources:
+		mem_gb=2000
 	benchmark:
 		'benchmarks/rolling_{window}.txt'
 	log:
@@ -128,6 +143,8 @@ rule cat_rolling_x:
 		window='|'.join([re.escape(x) for x in WINDOW_INDICES])
 	container:
 		'docker://koki/desc_investigation:20240508'
+	resources:
+		mem_gb=2000
 	benchmark:
 		'benchmarks/cat_rolling_x.txt'
 	log:
@@ -144,6 +161,8 @@ rule cat_rolling_y:
 		window='|'.join([re.escape(x) for x in WINDOW_INDICES])
 	container:
 		'docker://koki/desc_investigation:20240508'
+	resources:
+		mem_gb=2000
 	benchmark:
 		'benchmarks/cat_rolling_y.txt'
 	log:
@@ -158,6 +177,8 @@ rule sqlite_rolling_x:
 		'data/rolling_x.sqlite'
 	container:
 		'docker://koki/desc_investigation:20240508'
+	resources:
+		mem_gb=2000
 	benchmark:
 		'benchmarks/sqlite_rolling_x.txt'
 	log:
@@ -172,6 +193,8 @@ rule sqlite_rolling_y:
 		'data/rolling_y.sqlite'
 	container:
 		'docker://koki/desc_investigation:20240508'
+	resources:
+		mem_gb=2000
 	benchmark:
 		'benchmarks/sqlite_rolling_y.txt'
 	log:
@@ -187,6 +210,8 @@ rule numbering_x:
 		'data/row_coo_{size}.txt'
 	container:
 		'docker://koki/desc_investigation:20240508'
+	resources:
+		mem_gb=2000
 	benchmark:
 		'benchmarks/numbering_x_{size}.txt'
 	log:
@@ -202,6 +227,8 @@ rule numbering_y:
 		'data/col_coo_{size}.txt'
 	container:
 		'docker://koki/desc_investigation:20240508'
+	resources:
+		mem_gb=2000
 	benchmark:
 		'benchmarks/numbering_y_{size}.txt'
 	log:
@@ -219,6 +246,8 @@ rule paste:
 		size='|'.join([re.escape(x) for x in SIZES])
 	container:
 		'docker://koki/desc_investigation:20240508'
+	resources:
+		mem_gb=2000
 	benchmark:
 		'benchmarks/paste_{size}.txt'
 	log:
@@ -233,9 +262,41 @@ rule split_coo:
 		'data/{size}/FINISH_split'
 	container:
 		'docker://koki/desc_investigation:20240508'
+	resources:
+		mem_gb=2000
 	benchmark:
 		'benchmarks/split_coo_{size}.txt'
 	log:
 		'logs/split_coo_{size}.log'
 	shell:
 		'src/split_coo_{wildcards.size}.sh {input} {output} >& {log}'
+
+rule split_mm:
+	input:
+		'data/coo_small.txt'
+	output:
+		'data/mm/small/FINISH_MM'
+	container:
+		'docker://koki/desc_investigation_julia:20240701'
+	resources:
+		mem_gb=2000
+	benchmark:
+		'benchmarks/split_mm_small.txt'
+	log:
+		'logs/split_mm_small.log'
+	shell:
+		'src/split_mm.sh {input} {output} >& {log}'
+
+rule x_new_list:
+	input:
+		'data/mm/small/FINISH_MM'
+	output:
+		'data/mm/small/x_new_list.txt'
+	container:
+		'docker://koki/desc_investigation:20240508'
+	benchmark:
+		'benchmarks/x_new_list_small.txt'
+	log:
+		'logs/x_new_list_small.log'
+	shell:
+		'src/x_new_list.sh {output} >& {log}'
