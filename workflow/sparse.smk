@@ -14,8 +14,10 @@ WINDOW_INDICES = ['%02d' % x for x in list(range(1, N_WINDOWS+1))]
 
 rule all:
 	input:
+		expand('data/{size}/coo.txt', size=SIZES),
 		expand('data/{size}/FINISH_split', size=SIZES),
-		'data/mm/small/x_new_list.txt'
+		'data/mm/small/x_new_list.txt',
+		'data/col_id_disease_name_small.txt'
 
 rule extract_cols:
 	input:
@@ -25,7 +27,7 @@ rule extract_cols:
 	container:
 		'docker://koki/desc_investigation:20240508'
 	resources:
-		mem_gb=2000
+		mem_mb=10000000
 	benchmark:
 		'benchmarks/extract_cols.txt'
 	log:
@@ -41,7 +43,7 @@ rule split:
 	container:
 		'docker://koki/desc_investigation:20240508'
 	resources:
-		mem_gb=2000
+		mem_mb=10000000
 	benchmark:
 		'benchmarks/split.txt'
 	log:
@@ -58,7 +60,7 @@ rule join:
 	container:
 		'docker://koki/desc_investigation:20240508'
 	resources:
-		mem_gb=2000
+		mem_mb=10000000
 	benchmark:
 		'benchmarks/join_{sp_index}.txt'
 	log:
@@ -74,7 +76,7 @@ rule cat:
 	container:
 		'docker://koki/desc_investigation:20240508'
 	resources:
-		mem_gb=2000
+		mem_mb=10000000
 	benchmark:
 		'benchmarks/cat.txt'
 	log:
@@ -90,7 +92,7 @@ rule sqlite:
 	container:
 		'docker://koki/desc_investigation:20240508'
 	resources:
-		mem_gb=2000
+		mem_mb=10000000
 	benchmark:
 		'benchmarks/sqlite.txt'
 	log:
@@ -106,7 +108,7 @@ rule receipt_ym:
 	container:
 		'docker://koki/desc_investigation:20240508'
 	resources:
-		mem_gb=2000
+		mem_mb=10000000
 	benchmark:
 		'benchmarks/receipt_ym.txt'
 	log:
@@ -126,7 +128,7 @@ rule rolling:
 	container:
 		'docker://koki/desc_investigation:20240508'
 	resources:
-		mem_gb=2000
+		mem_mb=10000000
 	benchmark:
 		'benchmarks/rolling_{window}.txt'
 	log:
@@ -144,7 +146,7 @@ rule cat_rolling_x:
 	container:
 		'docker://koki/desc_investigation:20240508'
 	resources:
-		mem_gb=2000
+		mem_mb=10000000
 	benchmark:
 		'benchmarks/cat_rolling_x.txt'
 	log:
@@ -162,7 +164,7 @@ rule cat_rolling_y:
 	container:
 		'docker://koki/desc_investigation:20240508'
 	resources:
-		mem_gb=2000
+		mem_mb=10000000
 	benchmark:
 		'benchmarks/cat_rolling_y.txt'
 	log:
@@ -178,7 +180,7 @@ rule sqlite_rolling_x:
 	container:
 		'docker://koki/desc_investigation:20240508'
 	resources:
-		mem_gb=2000
+		mem_mb=10000000
 	benchmark:
 		'benchmarks/sqlite_rolling_x.txt'
 	log:
@@ -194,7 +196,7 @@ rule sqlite_rolling_y:
 	container:
 		'docker://koki/desc_investigation:20240508'
 	resources:
-		mem_gb=2000
+		mem_mb=10000000
 	benchmark:
 		'benchmarks/sqlite_rolling_y.txt'
 	log:
@@ -211,7 +213,7 @@ rule numbering_x:
 	container:
 		'docker://koki/desc_investigation:20240508'
 	resources:
-		mem_gb=2000
+		mem_mb=10000000
 	benchmark:
 		'benchmarks/numbering_x_{size}.txt'
 	log:
@@ -228,13 +230,32 @@ rule numbering_y:
 	container:
 		'docker://koki/desc_investigation:20240508'
 	resources:
-		mem_gb=2000
+		mem_mb=10000000
 	benchmark:
 		'benchmarks/numbering_y_{size}.txt'
 	log:
 		'logs/numbering_y_{size}.log'
 	shell:
 		'src/numbering_y_{wildcards.size}.sh {input} {output} >& {log}'
+
+rule col_id_disease_name:
+	input:
+		'data/col_id_number_small.txt',
+		'data/m_icd10.csv'
+	output:
+		'data/col_id_disease_name_small.txt'
+	wildcard_constraints:
+		size='|'.join([re.escape(x) for x in SIZES])
+	container:
+		'docker://koki/desc_investigation:20240508'
+	resources:
+		mem_mb=10000000
+	benchmark:
+		'benchmarks/col_id_disease_name.txt'
+	log:
+		'logs/col_id_disease_name.log'
+	shell:
+		'src/col_id_disease_name.sh {input} {output} >& {log}'
 
 rule paste:
 	input:
@@ -247,7 +268,7 @@ rule paste:
 	container:
 		'docker://koki/desc_investigation:20240508'
 	resources:
-		mem_gb=2000
+		mem_mb=10000000
 	benchmark:
 		'benchmarks/paste_{size}.txt'
 	log:
@@ -263,7 +284,7 @@ rule split_coo:
 	container:
 		'docker://koki/desc_investigation:20240508'
 	resources:
-		mem_gb=2000
+		mem_mb=10000000
 	benchmark:
 		'benchmarks/split_coo_{size}.txt'
 	log:
@@ -273,13 +294,13 @@ rule split_coo:
 
 rule split_mm:
 	input:
-		'data/coo_small.txt'
+		'data/small/coo.txt'
 	output:
 		'data/mm/small/FINISH_MM'
 	container:
 		'docker://koki/desc_investigation_julia:20240701'
 	resources:
-		mem_gb=2000
+		mem_mb=10000000
 	benchmark:
 		'benchmarks/split_mm_small.txt'
 	log:

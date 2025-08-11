@@ -10,4 +10,4 @@
 #SBATCH -p node03-06
 SLURM_RESTART_COUNT=2
 
-paste -d ' ' $1 $2 > $3
+Rscript src/col_id_disease_name.R $@

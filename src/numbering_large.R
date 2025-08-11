@@ -46,5 +46,6 @@ for(i in seq(100)){
 	}
 	tmp <- dbGetQuery(con, cmd2)
 	index <- id_value[substr(unlist(tmp), 1, 1)]
+	options(scipen = 999)
 	write.table(index, outfile2, quote=FALSE, col.names=FALSE, row.names=FALSE, append=TRUE)
 }

@@ -25,9 +25,6 @@ names(.NCOLUMNS) <- c("small", "medium", "large")
 		dims=c(nrow(coo), .NCOLUMNS[size])) |> writeMM(outfile)
 }
 
-fread(infile, stringsAsFactors=FALSE, sep="\t")
-
-
 .lapply_pb <- function(X, FUN, ...)
 {
  env <- environment()

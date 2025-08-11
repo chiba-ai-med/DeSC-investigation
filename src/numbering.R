@@ -15,7 +15,7 @@ value <- unlist(dbGetQuery(con, cmd))
 
 # Pre-processings
 print("Pre-processing")
-id_value <- seq_len(length(value)) - 1
+id_value <- seq_len(length(value))
 names(id_value) <- value
 
 # Save
@@ -44,5 +44,6 @@ for(i in seq(100)){
 	}
 	tmp <- dbGetQuery(con, cmd2)
 	index <- id_value[unlist(tmp)]
+	options(scipen = 999)
 	write.table(index, outfile2, quote=FALSE, col.names=FALSE, row.names=FALSE, append=TRUE)
 }
