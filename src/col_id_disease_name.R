@@ -27,4 +27,4 @@ merged_data <- merged_data[order(merged_data$number), ]
 colnames(merged_data) <- NULL
 
 # Output
-write.table(merged_data, file = outfile, sep = "\t", row.names = FALSE, quote = FALSE)
+write.csv(merged_data, file = outfile, row.names = FALSE, quote = FALSE)
